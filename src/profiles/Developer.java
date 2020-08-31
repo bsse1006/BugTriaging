@@ -30,4 +30,13 @@ public class Developer
     public List<String> getListOfBugIds() {
         return listOfBugIds;
     }
+
+    @Override
+    public String toString() {
+        return "Developer{" +
+                "name='" + name + '\'' +
+                ", startDate='" + startDate + '\'' +
+                ", listOfBugIds=" + listOfBugIds +
+                '}';
+    }
 }

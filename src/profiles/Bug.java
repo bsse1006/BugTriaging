@@ -55,6 +55,10 @@ public class Bug
         return solutionDate;
     }
 
+    public void setSolutionDate(String solutionDate) {
+        this.solutionDate = solutionDate;
+    }
+
     @Override
     public String toString() {
         return "Bug{" +
