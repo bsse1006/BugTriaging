@@ -18,5 +18,6 @@ public class Main
     {
         XMLParser parser = new XMLParser();
         parser.parsing();
+        System.out.println(parser.toString());
     }
 }
