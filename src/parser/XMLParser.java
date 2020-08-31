@@ -17,8 +17,8 @@ import java.util.Map;
 
 public class XMLParser
 {
-    Map<String, Bug> mapOfBugs = new HashMap<>();
-    Map<String, Developer> mapOfDevelopers = new HashMap<>();
+    private Map<String, Bug> mapOfBugs = new HashMap<>();
+    private Map<String, Developer> mapOfDevelopers = new HashMap<>();
 
     private Element extractRootElement (String filepath)
     {
@@ -32,13 +32,13 @@ public class XMLParser
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("Root element :" + document.getRootElement().getName());
+
         Element root = document.getRootElement();
 
         return root;
     }
 
-    public void bugDescriptionParsing ()
+    private void bugDescriptionParsing ()
     {
         Element root = extractRootElement("C:\\Users\\Hp\\Desktop\\BugTriaging\\src\\files\\fixedData.xml");
 
@@ -57,14 +57,10 @@ public class XMLParser
             );
 
             mapOfBugs.put(bugObject.getId(), bugObject);
-
-            System.out.println(bugObject);
-
-            System.out.println("----------------------------");
         }
     }
 
-    public void bugSolutionParsing ()
+    private void bugSolutionParsing ()
     {
         Element root = extractRootElement("C:\\Users\\Hp\\Desktop\\BugTriaging\\src\\files\\fixedDataHistory.xml");
 
@@ -80,17 +76,29 @@ public class XMLParser
             {
                 Element element = listOfElements.get(iteratorForListOfElements);
 
-                if(element.getChild("what").getText().equals("Resolution"))
+                if(element.getName().equals("element"))
                 {
-                    if(mapOfDevelopers.containsKey(element.getChild("who").getText()))
+                    if (element.getChild("what").getText().equals("Resolution"))
                     {
-                        mapOfDevelopers.get(element.getChild("who").getText()).getListOfBugIds().add(bugElement.getChild("bug_id").getText());
-                    }
-                    else
-                    {
-                        Developer developer = new Developer(element.getChild("who").getText(),
-                                element.getChild("when").getText());
-                        developer.getListOfBugIds().add(bugElement.getChild("bug_id").getText());
+                        if (mapOfDevelopers.containsKey(element.getChild("who").getText()))
+                        {
+                            mapOfDevelopers.get(element.getChild("who").getText()).getListOfBugIds().add(bugElement.getChild("bug_id").getText());
+
+                            //kahini ase, if bugs are not sorted by date
+                        }
+                        else
+                        {
+                            Developer developer = new Developer(element.getChild("who").getText(),
+                                    element.getChild("when").getText());
+
+                            developer.getListOfBugIds().add(bugElement.getChild("bug_id").getText());
+
+                            mapOfDevelopers.put(developer.getName(), developer);
+                        }
+
+                        mapOfBugs.get(bugElement.getChild("bug_id").getText()).setSolutionDate(element.getChild("when").getText());
+
+                        //kahini ase, multiple resolution er khetre kon date rakhbo shei bepar e
                     }
                 }
             }
@@ -101,5 +109,21 @@ public class XMLParser
     {
         bugDescriptionParsing();
         bugSolutionParsing();
+    }
+
+    public Map<String, Bug> getMapOfBugs() {
+        return mapOfBugs;
+    }
+
+    public Map<String, Developer> getMapOfDevelopers() {
+        return mapOfDevelopers;
+    }
+
+    @Override
+    public String toString() {
+        return "XMLParser{" +
+                "mapOfBugs=" + mapOfBugs +
+                ", mapOfDevelopers=" + mapOfDevelopers +
+                '}';
     }
 }
