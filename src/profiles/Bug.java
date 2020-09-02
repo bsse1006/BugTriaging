@@ -1,24 +1,27 @@
 package profiles;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Bug
 {
     private String id;
-    private String creationDate;
+    private LocalDate creationDate;
     private String product;
     private String component;
     private String severity;
-    private List<String> listOfKeywords = new ArrayList<>();
-    private String solutionDate;
+    private Set<String> listOfKeywords;
+    private LocalDate solutionDate;
 
     public Bug()
     {
 
     }
 
-    public Bug(String id, String creationDate, String product, String component, String severity) {
+    public Bug(String id, LocalDate creationDate, String product, String component, String severity) {
         this.id = id;
         this.creationDate = creationDate;
         this.product = product;
@@ -31,7 +34,7 @@ public class Bug
         return id;
     }
 
-    public String getCreationDate() {
+    public LocalDate getCreationDate() {
         return creationDate;
     }
 
@@ -47,15 +50,19 @@ public class Bug
         return severity;
     }
 
-    public List<String> getListOfKeywords() {
+    public Set<String> getListOfKeywords() {
         return listOfKeywords;
     }
 
-    public String getSolutionDate() {
+    public void setListOfKeywords(Set<String> listOfKeywords) {
+        this.listOfKeywords = listOfKeywords;
+    }
+
+    public LocalDate getSolutionDate() {
         return solutionDate;
     }
 
-    public void setSolutionDate(String solutionDate) {
+    public void setSolutionDate(LocalDate solutionDate) {
         this.solutionDate = solutionDate;
     }
 

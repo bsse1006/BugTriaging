@@ -1,5 +1,6 @@
 package parser;
 
+import naturalLanguageProcessor.TextProcessor;
 import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -10,6 +11,7 @@ import profiles.Developer;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,8 +40,7 @@ public class XMLParser
         return root;
     }
 
-    private void bugDescriptionParsing ()
-    {
+    private void bugDescriptionParsing () throws Exception {
         Element root = extractRootElement("C:\\Users\\Hp\\Desktop\\BugTriaging\\src\\files\\fixedData.xml");
 
         List<Element> listOfBugs = root.getChildren();
@@ -50,11 +51,18 @@ public class XMLParser
 
             Bug bugObject = new Bug(
                     bugElement.getChild("id").getText(),
-                    bugElement.getChild("creation_time").getText(),
+                    LocalDate.parse(bugElement.getChild("creation_time").getText().substring(0,10)),
                     bugElement.getChild("product").getText(),
                     bugElement.getChild("component").getText(),
                     bugElement.getChild("bug_severity").getText()
             );
+
+            String summaryAndDescription = bugElement.getChild("short_desc").getText() + ' ' +
+                    bugElement.getChild("thetext").getText();
+
+            TextProcessor tp = new TextProcessor(summaryAndDescription);
+
+            bugObject.setListOfKeywords(tp.getKeywords());
 
             mapOfBugs.put(bugObject.getId(), bugObject);
         }
@@ -70,6 +78,8 @@ public class XMLParser
         {
             Element bugElement = listOfBugs.get(iteratorForListOfBugs);
 
+            String bugId = bugElement.getChild("bug_id").getText();
+
             List<Element> listOfElements = bugElement.getChildren();
 
             for (int iteratorForListOfElements = 0; iteratorForListOfElements < listOfElements.size(); iteratorForListOfElements++)
@@ -80,33 +90,45 @@ public class XMLParser
                 {
                     if (element.getChild("what").getText().equals("Resolution"))
                     {
-                        if (mapOfDevelopers.containsKey(element.getChild("who").getText()))
-                        {
-                            mapOfDevelopers.get(element.getChild("who").getText()).getListOfBugIds().add(bugElement.getChild("bug_id").getText());
+                        LocalDate bugResolutionDate = LocalDate.parse(element.getChild("when").getText().substring(0,10));
+                        String developerName = element.getChild("who").getText();
 
-                            //kahini ase, if bugs are not sorted by date
+                        if (mapOfDevelopers.containsKey(developerName))
+                        {
+                            Developer alreadyCreatedDeveloper = mapOfDevelopers.get(developerName);
+
+                            alreadyCreatedDeveloper.getListOfBugIds().add(bugId);
+
+                            if(alreadyCreatedDeveloper.getStartDate().compareTo(bugResolutionDate)>0)
+                            {
+                                alreadyCreatedDeveloper.setStartDate(bugResolutionDate);
+                            }
                         }
                         else
                         {
-                            Developer developer = new Developer(element.getChild("who").getText(),
-                                    element.getChild("when").getText());
+                            Developer developer = new Developer(developerName,
+                                    bugResolutionDate);
 
-                            developer.getListOfBugIds().add(bugElement.getChild("bug_id").getText());
+                            developer.getListOfBugIds().add(bugId);
 
                             mapOfDevelopers.put(developer.getName(), developer);
                         }
 
-                        mapOfBugs.get(bugElement.getChild("bug_id").getText()).setSolutionDate(element.getChild("when").getText());
-
-                        //kahini ase, multiple resolution er khetre kon date rakhbo shei bepar e
+                        if(mapOfBugs.get(bugId).getSolutionDate()==null)
+                        {
+                            mapOfBugs.get(bugId).setSolutionDate(bugResolutionDate);
+                        }
+                        else if(mapOfBugs.get(bugId).getSolutionDate().compareTo(bugResolutionDate)<0)
+                        {
+                            mapOfBugs.get(bugId).setSolutionDate(bugResolutionDate);
+                        }
                     }
                 }
             }
         }
     }
 
-    public void parsing ()
-    {
+    public void parsing () throws Exception {
         bugDescriptionParsing();
         bugSolutionParsing();
     }
