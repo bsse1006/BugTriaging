@@ -54,14 +54,14 @@ public class TextProcessor
         }
     }
 
-    public void textProcessing () throws Exception {
+    private void textProcessing () throws Exception {
         stopWordsFileToList();
         splitCamelCaseAndTokenization();
         removeStopWordsAndStem();
     }
 
 
-    void stemTerm (Set<String> words) {
+    private void stemTerm (Set<String> words) {
         PorterStemmer stemmer = new PorterStemmer();
         for(String value: words){
             stemmer.setCurrent(value);
@@ -91,7 +91,7 @@ public class TextProcessor
         }
     }
 
-    public void removeStopWordsAndStem () throws Exception {
+    private void removeStopWordsAndStem () throws Exception {
 
         //CharArraySet stopSet = EnglishAnalyzer.getDefaultStopSet();
         CharArraySet stopSet = new CharArraySet(stopWordsList, true);

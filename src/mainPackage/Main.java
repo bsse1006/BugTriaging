@@ -24,7 +24,8 @@ public class Main
 {
     public static void main(String[] args) throws Exception
     {
-        GithubParser githubParser = new GithubParser("https://github.com/bsse1006/BugTriaging/blob/master/src/mainPackage/Main.java");
+        GithubParser githubParser = new GithubParser("https://github.com/bsse1006");
+        githubParser.parseProjectData("https://github.com/orgs/neo-project/projects/2");
 
         /*XMLParser parser = new XMLParser();
         parser.parsing();
