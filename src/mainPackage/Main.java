@@ -1,7 +1,14 @@
 package mainPackage;
 
-import naturalLanguageProcessor.TextProcessor;
-import org.jsoup.Jsoup;
+import
+
+        naturalLanguageProcessor
+                .TextProcessor
+        ;
+    import org
+            .jsoup.
+            Jsoup
+            ;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import parser.*;
@@ -25,7 +32,7 @@ public class Main
     public static void main(String[] args) throws Exception
     {
         GithubParser githubParser = new GithubParser("https://github.com/bsse1006");
-        githubParser.parseProjectData("https://github.com/orgs/neo-project/projects/2");
+        githubParser.parseJavaLibraries("https://github.com/bsse1006/BugTriaging/blob/master/src/mainPackage/Main.java");
 
         /*XMLParser parser = new XMLParser();
         parser.parsing();
@@ -62,12 +69,23 @@ public class Main
         counter = 0;
         for(Map.Entry d: developers)
         {
-            if(counter == 5)
+            *//*if(counter == 5)
             {
                 break;
-            }
+            }*//*
             Developer developer = (Developer)d.getValue();
-            System.out.println(developer.getName()+"----->"+developer.getStartDate());
+            System.out.println(developer.getName());
+            counter++;
+        }
+
+        for(Map.Entry d: developers)
+        {
+            *//*if(counter == 5)
+            {
+                break;
+            }*//*
+            Developer developer = (Developer)d.getValue();
+            System.out.println(developer.getStartDate());
             counter++;
         }
 
