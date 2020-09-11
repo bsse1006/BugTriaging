@@ -41,7 +41,7 @@ public class XMLParser
     }
 
     private void bugDescriptionParsing () throws Exception {
-        Element root = extractRootElement("C:\\Users\\Hp\\Desktop\\BugTriaging\\src\\files\\fixedData.xml");
+        Element root = extractRootElement("C:\\Users\\Hp\\Desktop\\fixedData.xml");
 
         List<Element> listOfBugs = root.getChildren();
 
@@ -70,7 +70,7 @@ public class XMLParser
 
     private void bugSolutionParsing ()
     {
-        Element root = extractRootElement("C:\\Users\\Hp\\Desktop\\BugTriaging\\src\\files\\fixedDataHistory.xml");
+        Element root = extractRootElement("C:\\Users\\Hp\\Desktop\\fixedDataHistory.xml");
 
         List<Element> listOfBugs = root.getChildren();
 

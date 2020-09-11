@@ -1,14 +1,11 @@
 package mainPackage;
 
-import
-
-        naturalLanguageProcessor
-                .TextProcessor
-        ;
-    import org
-            .jsoup.
-            Jsoup
-            ;
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.NodeList;
+import naturalLanguageProcessor.TextProcessor;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import parser.*;
@@ -31,8 +28,26 @@ public class Main
 {
     public static void main(String[] args) throws Exception
     {
-        GithubParser githubParser = new GithubParser("https://github.com/bsse1006");
-        githubParser.parseJavaLibraries("https://github.com/bsse1006/BugTriaging/blob/master/src/mainPackage/Main.java");
+        SourceCodeParser scp = new SourceCodeParser("C:\\Users\\Hp\\Desktop\\BugTriaging");
+
+        for(String lib: scp.getListOfLibraryImports())
+        {
+            System.out.println(lib);
+        }
+
+        /*GithubParser githubParser = new GithubParser("https://github.com/bsse1006");
+
+        for (String keyword: githubParser.getListOfRepositoryKeywords())
+        {
+            System.out.println(keyword);
+        }
+
+        System.out.println("-----------------");
+
+        for (String lib: githubParser.getListOfLibraryImports())
+        {
+            System.out.println(lib);
+        }*/
 
         /*XMLParser parser = new XMLParser();
         parser.parsing();
@@ -69,10 +84,6 @@ public class Main
         counter = 0;
         for(Map.Entry d: developers)
         {
-            *//*if(counter == 5)
-            {
-                break;
-            }*//*
             Developer developer = (Developer)d.getValue();
             System.out.println(developer.getName());
             counter++;
@@ -80,10 +91,6 @@ public class Main
 
         for(Map.Entry d: developers)
         {
-            *//*if(counter == 5)
-            {
-                break;
-            }*//*
             Developer developer = (Developer)d.getValue();
             System.out.println(developer.getStartDate());
             counter++;

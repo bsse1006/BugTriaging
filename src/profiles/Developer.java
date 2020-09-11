@@ -19,7 +19,7 @@ public class Developer
 {
     private String name;
     private LocalDate startDate;
-    private List<String> listOfBugIds = new ArrayList<>();
+    private Set<String> listOfBugIds = new HashSet<>();
 
     public Developer()
     {
@@ -43,7 +43,7 @@ public class Developer
         this.startDate = startDate;
     }
 
-    public List<String> getListOfBugIds() {
+    public Set<String> getListOfBugIds() {
         return listOfBugIds;
     }
 

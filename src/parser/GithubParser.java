@@ -1,24 +1,81 @@
 package parser;
 
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.ImportDeclaration;
+import com.github.javaparser.ast.NodeList;
+import naturalLanguageProcessor.TextProcessor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class GithubParser
 {
     private String url;
+    private Set<String> listOfRepositoryKeywords = new HashSet<>();
+    private Set<String> listOfLibraryImports = new HashSet<>();
     private String unprocessedStringOfKeywords = "";
 
     public GithubParser(String url) {
         this.url = url;
-        //parseHTML();
+        parseHTML();
     }
 
-    public String getUnprocessedStringOfKeywords() {
-        return unprocessedStringOfKeywords;
+    public Set<String> getListOfRepositoryKeywords() {
+        return listOfRepositoryKeywords;
+    }
+
+    public Set<String> getListOfLibraryImports() {
+        return listOfLibraryImports;
+    }
+
+    public void parseJavaLibraries (String link)
+    {
+        try {
+            final Document document = Jsoup.connect(link).get();
+
+            String javaFile = "";
+
+            for (Element element : document.select("td.blob-code.blob-code-inner.js-file-line"))
+            {
+                javaFile = javaFile + element.text() + "\n";
+            }
+
+            CompilationUnit cu = StaticJavaParser.parse(javaFile);
+
+            NodeList<ImportDeclaration> listOfImports = cu.getImports();
+
+            for(ImportDeclaration i: listOfImports)
+            {
+                listOfLibraryImports.add(i.getName().toString());
+            }
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public void parseReadme (String link)
+    {
+        try {
+            final Document document = Jsoup.connect(link).get();
+
+            for (Element element : document.select("article.markdown-body.entry-content.container-lg"))
+            {
+                for(Element p: element.select("p"))
+                {
+                    unprocessedStringOfKeywords = unprocessedStringOfKeywords + ' ' + p.text();
+                }
+            }
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     public void parseFileNames (String link)
@@ -28,7 +85,17 @@ public class GithubParser
 
             for (Element element : document.select("a.js-navigation-open.link-gray-dark"))
             {
-                System.out.println(element.text());
+                if(element.text().length()>5)
+                {
+                    if(element.text().substring(element.text().length()-4, element.text().length()).equals("java"))
+                    {
+                        parseJavaLibraries("https://github.com" + element.attr("href"));
+                    }
+                }
+                if(element.text().equals("README.md"))
+                {
+                    parseReadme("https://github.com" + element.attr("href"));
+                }
                 unprocessedStringOfKeywords = unprocessedStringOfKeywords + ' ' + element.text();
                 parseFileNames("https://github.com" + element.attr("href"));
             }
@@ -43,51 +110,25 @@ public class GithubParser
         try {
             final Document document = Jsoup.connect(link).get();
 
-            for (Element element : document.select("a"))
+            for (Element element : document.select("div.col-10.col-lg-9.d-inline-block"))
             {
-                if(element.attr("itemprop").equals("name codeRepository"))
+                for(Element span : element.select("span"))
                 {
-                    unprocessedStringOfKeywords = unprocessedStringOfKeywords + ' ' + element.text();
-                    parseFileNames("https://github.com" + element.attr("href"));
+                    if(span.attr("itemprop").equals("programmingLanguage"))
+                    {
+                        if(span.text().equals("Java"))
+                        {
+                            for (Element repo: element.select("a"))
+                            {
+                                if(repo.attr("itemprop").equals("name codeRepository"))
+                                {
+                                    unprocessedStringOfKeywords = unprocessedStringOfKeywords + ' ' + repo.text();
+                                    parseFileNames("https://github.com" + repo.attr("href"));
+                                }
+                            }
+                        }
+                    }
                 }
-            }
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    public void parsePackages (String link)
-    {
-
-    }
-
-    public void parseProjectData (String link)
-    {
-        try {
-            final Document document = Jsoup.connect(link).get();
-
-            for (Element element : document.select("div.project-columns.bg-white.d-flex.flex-auto.flex-column.clearfix.position-relative.no-wrap.project-touch-scrolling.js-project-columns "))
-            {
-                System.out.println(element.text());
-                //unprocessedStringOfKeywords = unprocessedStringOfKeywords + ' ' + element.text();
-                //parseProjectData("https://github.com" + element.attr("href"));
-            }
-        }
-        catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    public void parseProjects (String link)
-    {
-        try {
-            final Document document = Jsoup.connect(link).get();
-
-            for (Element element : document.select("a.link-gray-dark.mr-1"))
-            {
-                unprocessedStringOfKeywords = unprocessedStringOfKeywords + ' ' + element.text();
-                parseProjectData("https://github.com" + element.attr("href"));
             }
         }
         catch (Exception ex) {
@@ -100,48 +141,29 @@ public class GithubParser
         try {
             final Document document = Jsoup.connect(url).get();
 
-            String overviewLink = "";
             String repositoryLink = "";
-            String projectLink = "";
-            String packageLink = "";
 
-
-            int counter = 0;
             for (Element element : document.select("a.UnderlineNav-item "))
             {
-                if(counter == 4)
-                    break;
-                if(element.text().contains("Overview"))
-                {
-                    overviewLink = "https://github.com" + element.attr("href");
-                }
-                else if(element.text().contains("Repositories"))
+                if(element.text().contains("Repositories"))
                 {
                     repositoryLink = "https://github.com" + element.attr("href");
+                    break;
                 }
-                else if(element.text().contains("Projects"))
-                {
-                    projectLink = "https://github.com" + element.attr("href");
-                }
-                else if(element.text().contains("Packages"))
-                {
-                    packageLink = "https://github.com" + element.attr("href");
-                }
-                counter++;
-                //System.out.println("----------");
-                /*if(element.attr("itemprop").equals("name codeRepository"))
-                {
-                    System.out.println(element.attr("href"));
-                    System.out.println("----------");
-                }*/
             }
 
             parseRepositories(repositoryLink);
 
-            System.out.println(unprocessedStringOfKeywords);
+            processStringOfKeywords();
         }
         catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public void processStringOfKeywords() throws Exception
+    {
+        TextProcessor tp = new TextProcessor(unprocessedStringOfKeywords);
+        listOfRepositoryKeywords = tp.getKeywords();
     }
 }
