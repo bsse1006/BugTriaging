@@ -9,6 +9,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -17,12 +18,14 @@ import java.util.Set;
 public class GithubParser
 {
     private String url;
+    private LocalDate testingDate;
     private Set<String> listOfRepositoryKeywords = new HashSet<>();
     private Set<String> listOfLibraryImports = new HashSet<>();
     private String unprocessedStringOfKeywords = "";
 
-    public GithubParser(String url) {
+    public GithubParser(String url, LocalDate testingDate) {
         this.url = url;
+        this.testingDate = testingDate;
         parseHTML();
     }
 

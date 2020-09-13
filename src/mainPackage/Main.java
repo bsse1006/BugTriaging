@@ -19,6 +19,7 @@ import profiles.Developer;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.time.LocalDate;
 import java.util.*;
 
 public class Main
@@ -50,7 +51,7 @@ public class Main
             System.out.println(lib);
         }*/
 
-        /*GithubParser githubParser = new GithubParser("https://github.com/bsse1006");
+        /*GithubParser githubParser = new GithubParser("https://github.com/jnunemaker", LocalDate.now());
 
         for (String keyword: githubParser.getListOfRepositoryKeywords())
         {
