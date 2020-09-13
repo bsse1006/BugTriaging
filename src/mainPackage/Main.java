@@ -19,21 +19,36 @@ import profiles.Developer;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Main
 {
     public static void main(String[] args) throws Exception
     {
-        SourceCodeParser scp = new SourceCodeParser("C:\\Users\\Hp\\Desktop\\BugTriaging");
+        /*XMLParser parser = new XMLParser();
+        parser.parsing();
+
+        Set<String> setOfProducts = new HashSet<>();
+
+        for(Map.Entry m : parser.getMapOfBugs().entrySet())
+        {
+            Bug b = (Bug) m.getValue();
+            //System.out.println(b.getProduct());
+            setOfProducts.add(b.getComponent());
+        }
+
+        for(String p: setOfProducts)
+        {
+            System.out.println(p);
+        }*/
+
+
+        /*SourceCodeParser scp = new SourceCodeParser("C:\\Users\\Hp\\Desktop\\BugTriaging");
 
         for(String lib: scp.getListOfLibraryImports())
         {
             System.out.println(lib);
-        }
+        }*/
 
         /*GithubParser githubParser = new GithubParser("https://github.com/bsse1006");
 
