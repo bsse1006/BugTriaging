@@ -13,7 +13,7 @@ public class Bug
     private String product;
     private String component;
     private String severity;
-    private Set<String> listOfKeywords;
+    private List<String> listOfKeywords;
     private LocalDate solutionDate;
 
     public Bug()
@@ -50,11 +50,11 @@ public class Bug
         return severity;
     }
 
-    public Set<String> getListOfKeywords() {
+    public List<String> getListOfKeywords() {
         return listOfKeywords;
     }
 
-    public void setListOfKeywords(Set<String> listOfKeywords) {
+    public void setListOfKeywords(List<String> listOfKeywords) {
         this.listOfKeywords = listOfKeywords;
     }
 

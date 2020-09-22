@@ -14,7 +14,7 @@ import java.util.*;
 
 public class SourceCodeParser
 {
-    private Set<String> listOfLibraryImports = new HashSet<>();
+    private List<String> listOfLibraryImports = new ArrayList<>();
     private String sourceCodeFolderPath;
 
     public SourceCodeParser (String sourceCodeFolderPath) throws FileNotFoundException {
@@ -22,7 +22,7 @@ public class SourceCodeParser
         sourceCodeParser(sourceCodeFolderPath);
     }
 
-    public Set<String> getListOfLibraryImports() {
+    public List<String> getListOfLibraryImports() {
         return listOfLibraryImports;
     }
 

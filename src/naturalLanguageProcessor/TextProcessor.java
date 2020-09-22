@@ -23,8 +23,8 @@ import java.util.*;
 public class TextProcessor
 {
     private String unprocessedText;
-    private Set<String> keywords = new HashSet<>();
-    private Set<String> tokens = new HashSet<>();
+    private List<String> keywords = new ArrayList<>();
+    private List<String> tokens = new ArrayList<>();
     private List<String> stopWordsList = new ArrayList<>();
 
     public TextProcessor(String unprocessedText) throws Exception {
@@ -32,7 +32,7 @@ public class TextProcessor
         textProcessing();
     }
 
-    public Set<String> getKeywords() {
+    public List<String> getKeywords() {
         return keywords;
     }
 
@@ -61,7 +61,7 @@ public class TextProcessor
     }
 
 
-    private void stemTerm (Set<String> words) {
+    private void stemTerm (List<String> words) {
         PorterStemmer stemmer = new PorterStemmer();
         for(String value: words){
             stemmer.setCurrent(value);

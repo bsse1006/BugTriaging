@@ -19,6 +19,7 @@ import profiles.Developer;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.http.HttpResponse;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -26,6 +27,10 @@ public class Main
 {
     public static void main(String[] args) throws Exception
     {
+        GithubParser gp = new GithubParser("https://github.com/bsse1006", LocalDate.parse("2018-06-01"));
+        System.out.println(gp.getListOfLibraryImports().size());
+        System.out.println(gp.getListOfRepositoryKeywords().size());
+
         /*XMLParser parser = new XMLParser();
         parser.parsing();
 

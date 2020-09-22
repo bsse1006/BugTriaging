@@ -19,8 +19,8 @@ public class GithubParser
 {
     private String url;
     private LocalDate testingDate;
-    private Set<String> listOfRepositoryKeywords = new HashSet<>();
-    private Set<String> listOfLibraryImports = new HashSet<>();
+    private List<String> listOfRepositoryKeywords = new ArrayList<>();
+    private List<String> listOfLibraryImports = new ArrayList<>();
     private String unprocessedStringOfKeywords = "";
 
     public GithubParser(String url, LocalDate testingDate) {
@@ -29,11 +29,11 @@ public class GithubParser
         parseHTML();
     }
 
-    public Set<String> getListOfRepositoryKeywords() {
+    public List<String> getListOfRepositoryKeywords() {
         return listOfRepositoryKeywords;
     }
 
-    public Set<String> getListOfLibraryImports() {
+    public List<String> getListOfLibraryImports() {
         return listOfLibraryImports;
     }
 
@@ -81,6 +81,33 @@ public class GithubParser
         }
     }
 
+    public LocalDate parseCreationDateOfRepositoryFromListOfCommits (String link)
+    {
+        LocalDate creationDate = null;
+
+        try {
+            final Document document = Jsoup.connect(link).get();
+
+            for (Element element : document.select("relative-time.no-wrap"))
+            {
+                creationDate = LocalDate.parse(element.attr("datetime").substring(0,10));
+            }
+
+            for(Element element : document.select("a.btn.btn-outline.BtnGroup-item"))
+            {
+                if (element.text().equals("Older"))
+                {
+                    creationDate = parseCreationDateOfRepositoryFromListOfCommits(element.attr("href"));
+                }
+            }
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return creationDate;
+    }
+
     public void parseFileNames (String link)
     {
         try {
@@ -125,12 +152,24 @@ public class GithubParser
                             {
                                 if(repo.attr("itemprop").equals("name codeRepository"))
                                 {
-                                    unprocessedStringOfKeywords = unprocessedStringOfKeywords + ' ' + repo.text();
-                                    parseFileNames("https://github.com" + repo.attr("href"));
+                                    LocalDate repoDate = parseCreationDateOfRepositoryFromListOfCommits("https://github.com"+repo.attr("href")+"/commits/master");
+                                    if (repoDate.compareTo(testingDate)<0)
+                                    {
+                                        unprocessedStringOfKeywords = unprocessedStringOfKeywords + ' ' + repo.text();
+                                        parseFileNames("https://github.com" + repo.attr("href"));
+                                    }
                                 }
                             }
                         }
                     }
+                }
+            }
+
+            for(Element element : document.select("a.btn.btn-outline.BtnGroup-item"))
+            {
+                if (element.text().equals("Next"))
+                {
+                    parseRepositories(element.attr("href"));
                 }
             }
         }

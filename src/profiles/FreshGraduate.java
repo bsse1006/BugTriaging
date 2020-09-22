@@ -1,12 +1,14 @@
 package profiles;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class FreshGraduate
 {
     private Developer developerCore;
-    private Set<String> listOfKeyWords = new HashSet<>();
+    private List<String> listOfKeyWords = new ArrayList<>();
 
     public FreshGraduate(Developer developerCore) {
         this.developerCore = developerCore;
@@ -16,7 +18,7 @@ public class FreshGraduate
         return developerCore;
     }
 
-    public Set<String> getListOfKeyWords() {
+    public List<String> getListOfKeyWords() {
         return listOfKeyWords;
     }
 
