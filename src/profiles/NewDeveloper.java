@@ -15,4 +15,16 @@ public class NewDeveloper
         this.listOfRepositoryKeywords = listOfRepositoryKeywords;
         this.listOfLibraryImports = listOfLibraryImports;
     }
+
+    public Developer getDeveloperCore() {
+        return developerCore;
+    }
+
+    public List<String> getListOfRepositoryKeywords() {
+        return listOfRepositoryKeywords;
+    }
+
+    public List<String> getListOfLibraryImports() {
+        return listOfLibraryImports;
+    }
 }

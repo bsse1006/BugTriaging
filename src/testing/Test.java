@@ -129,6 +129,91 @@ public class Test
         nedIndexing();
         fgIndexing();
         readEdIndex();
+        readNedIndex();
+        readFgIndex();
+    }
+
+    private void readEdIndex () throws IOException, ParseException {
+        String indexPath = "C:\\Users\\Hp\\Desktop\\BugTriaging\\src\\files\\edIndex";
+
+        Directory dir = FSDirectory.open(Paths.get(indexPath));
+
+        DirectoryReader directoryReader = DirectoryReader.open(dir);
+
+        IndexSearcher searcher = new IndexSearcher (directoryReader);
+
+        QueryParser qp = new QueryParser("contents", new StandardAnalyzer());
+
+        Query query = qp.parse(convertListToQuery(testBugs.get(0).getListOfKeywords())); //syntax
+
+        TopDocs results = searcher.search(query, 10);
+
+        for(ScoreDoc scoreDoc: results.scoreDocs)
+        {
+            Document document = searcher.doc(scoreDoc.doc);
+            System.out.println(document.get("name"));
+            System.out.println(scoreDoc.doc);
+            System.out.println(scoreDoc.score);
+        }
+
+        directoryReader.close();
+    }
+
+    private void readNedIndex () throws IOException, ParseException {
+        String indexPath = "C:\\Users\\Hp\\Desktop\\BugTriaging\\src\\files\\nedIndex";
+
+        Directory dir = FSDirectory.open(Paths.get(indexPath));
+
+        DirectoryReader directoryReader = DirectoryReader.open(dir);
+
+        IndexSearcher searcher = new IndexSearcher (directoryReader);
+
+        QueryParser qp = new QueryParser("contents", new StandardAnalyzer());
+
+        List<String> queryList = new ArrayList<>();
+
+        queryList.addAll(listOfSourceCodeLibraryImports);
+        queryList.addAll(testBugs.get(0).getListOfKeywords());
+
+        Query query = qp.parse(convertListToQuery(queryList)); //syntax
+
+        TopDocs results = searcher.search(query, 10);
+
+        for(ScoreDoc scoreDoc: results.scoreDocs)
+        {
+            Document document = searcher.doc(scoreDoc.doc);
+            System.out.println(document.get("name"));
+            System.out.println(scoreDoc.doc);
+            System.out.println(scoreDoc.score);
+        }
+
+        directoryReader.close();
+    }
+
+    private void readFgIndex () throws IOException, ParseException {
+        String indexPath = "C:\\Users\\Hp\\Desktop\\BugTriaging\\src\\files\\fgIndex";
+
+        Directory dir = FSDirectory.open(Paths.get(indexPath));
+
+        DirectoryReader directoryReader = DirectoryReader.open(dir);
+
+        IndexSearcher searcher = new IndexSearcher (directoryReader);
+
+        QueryParser qp = new QueryParser("contents", new StandardAnalyzer());
+
+        Query query = qp.parse(convertListToQuery(testBugs.get(0).getListOfKeywords())); //syntax
+
+        TopDocs results = searcher.search(query, 10);
+
+        for(ScoreDoc scoreDoc: results.scoreDocs)
+        {
+            Document document = searcher.doc(scoreDoc.doc);
+            System.out.println(document.get("name"));
+            System.out.println(scoreDoc.doc);
+            System.out.println(scoreDoc.score);
+        }
+
+        directoryReader.close();
     }
 
     private String convertListToString (List<String> list)
@@ -193,34 +278,8 @@ public class Test
         indexWriter.close();
     }
 
-    private void readEdIndex () throws IOException, ParseException {
-        String indexPath = "C:\\Users\\Hp\\Desktop\\BugTriaging\\src\\files\\edIndex";
-
-        Directory dir = FSDirectory.open(Paths.get(indexPath));
-
-        DirectoryReader directoryReader = DirectoryReader.open(dir);
-
-        IndexSearcher searcher = new IndexSearcher (directoryReader);
-
-        QueryParser qp = new QueryParser("contents", new StandardAnalyzer());
-
-        Query query = qp.parse(convertListToQuery(testBugs.get(0).getListOfKeywords())); //syntax
-
-        TopDocs results = searcher.search(query, 10);
-
-        for(ScoreDoc scoreDoc: results.scoreDocs)
-        {
-            Document document = searcher.doc(scoreDoc.doc);
-            System.out.println(document.get("name"));
-            System.out.println(scoreDoc.doc);
-            System.out.println(scoreDoc.score);
-        }
-
-        directoryReader.close();
-    }
-
     private void nedIndexing() throws IOException {
-        String indexPath = "C:\\Users\\Hp\\Desktop\\BugTriaging\\src\\files\nedIndex";
+        String indexPath = "C:\\Users\\Hp\\Desktop\\BugTriaging\\src\\files\\nedIndex";
 
         Directory dir = FSDirectory.open(Paths.get(indexPath));
 
@@ -230,8 +289,22 @@ public class Test
 
         IndexWriter indexWriter = new IndexWriter(dir, iwc);
 
+        for(NewDeveloper developer: newExperiencedDevelopers)
+        {
+            Document document = new Document();
+
+            String content = "";
+
+            content = content + " " + convertListToString(developer.getListOfLibraryImports());
+            content = content + " " + convertListToString(developer.getListOfRepositoryKeywords());
 
 
+            document.add(new TextField("content", content, Field.Store.NO));
+            document.add(new StringField("name", developer.getDeveloperCore().getName(), Field.Store.YES));
+            document.add(new StringField("startingDate", developer.getDeveloperCore().getStartDate().toString(), Field.Store.YES));
+
+            indexWriter.addDocument(document);
+        }
 
         indexWriter.close();
     }
@@ -247,8 +320,21 @@ public class Test
 
         IndexWriter indexWriter = new IndexWriter(dir, iwc);
 
+        for(FreshGraduate developer: freshGraduates)
+        {
+            Document document = new Document();
+
+            String content = "";
+
+            content = content + " " + convertListToString(developer.getListOfKeyWords());
 
 
+            document.add(new TextField("content", content, Field.Store.NO));
+            document.add(new StringField("name", developer.getDeveloperCore().getName(), Field.Store.YES));
+            document.add(new StringField("startingDate", developer.getDeveloperCore().getStartDate().toString(), Field.Store.YES));
+
+            indexWriter.addDocument(document);
+        }
 
         indexWriter.close();
     }
