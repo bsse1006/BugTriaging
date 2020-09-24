@@ -1,10 +1,13 @@
 package parser;
 
+import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
 import naturalLanguageProcessor.TextProcessor;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,13 +21,16 @@ import java.util.Set;
 public class GithubParser
 {
     private String url;
+    private String userName;
+    private String repositoryName;
     private LocalDate testingDate;
     private List<String> listOfRepositoryKeywords = new ArrayList<>();
     private List<String> listOfLibraryImports = new ArrayList<>();
     private String unprocessedStringOfKeywords = "";
 
-    public GithubParser(String url, LocalDate testingDate) {
-        this.url = url;
+    public GithubParser(String userName, LocalDate testingDate) throws InterruptedException {
+        this.userName = userName;
+        this.url = "https://github.com/" + userName;
         this.testingDate = testingDate;
         parseHTML();
     }
@@ -37,10 +43,11 @@ public class GithubParser
         return listOfLibraryImports;
     }
 
-    public void parseJavaLibraries (String link)
-    {
+    public void parseJavaLibraries (String link) throws InterruptedException {
         try {
             final Document document = Jsoup.connect(link).get();
+
+            System.out.println(link);
 
             String javaFile = "";
 
@@ -59,12 +66,16 @@ public class GithubParser
             }
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+            if(!(ex instanceof ParseProblemException))
+            {
+                ex.printStackTrace();
+                Thread.currentThread().sleep(10000);
+                parseJavaLibraries(link);
+            }
         }
     }
 
-    public void parseReadme (String link)
-    {
+    public void parseReadme (String link) throws InterruptedException {
         try {
             final Document document = Jsoup.connect(link).get();
 
@@ -78,38 +89,34 @@ public class GithubParser
         }
         catch (Exception ex) {
             ex.printStackTrace();
+            Thread.currentThread().sleep(10000);
+            parseReadme(link);
         }
     }
 
-    public LocalDate parseCreationDateOfRepositoryFromListOfCommits (String link)
-    {
+    public LocalDate parseCreationDateOfRepository (String link) throws InterruptedException {
         LocalDate creationDate = null;
 
-        try {
-            final Document document = Jsoup.connect(link).get();
+        try
+        {
+            final String document = Jsoup.connect(link).ignoreContentType(true).execute().body();
 
-            for (Element element : document.select("relative-time.no-wrap"))
-            {
-                creationDate = LocalDate.parse(element.attr("datetime").substring(0,10));
-            }
+            Object obj = new JSONParser().parse(document);
 
-            for(Element element : document.select("a.btn.btn-outline.BtnGroup-item"))
-            {
-                if (element.text().equals("Older"))
-                {
-                    creationDate = parseCreationDateOfRepositoryFromListOfCommits(element.attr("href"));
-                }
-            }
+            JSONObject json = (JSONObject) obj;
+
+            creationDate = LocalDate.parse(json.get("created_at").toString().substring(0,10));
         }
         catch (Exception ex) {
             ex.printStackTrace();
+            Thread.currentThread().sleep(10000);
+            return parseCreationDateOfRepository(link);
         }
 
         return creationDate;
     }
 
-    public void parseFileNames (String link)
-    {
+    public void parseFileNames (String link) throws InterruptedException {
         try {
             final Document document = Jsoup.connect(link).get();
 
@@ -119,6 +126,7 @@ public class GithubParser
                 {
                     if(element.text().substring(element.text().length()-4, element.text().length()).equals("java"))
                     {
+                        System.out.println(element.text());
                         parseJavaLibraries("https://github.com" + element.attr("href"));
                     }
                 }
@@ -132,11 +140,13 @@ public class GithubParser
         }
         catch (Exception ex) {
             ex.printStackTrace();
+            System.out.println(link);
+            Thread.currentThread().sleep(10000);
+            parseFileNames(link);
         }
     }
 
-    public void parseRepositories (String link)
-    {
+    public void parseRepositories (String link) throws InterruptedException {
         try {
             final Document document = Jsoup.connect(link).get();
 
@@ -152,7 +162,10 @@ public class GithubParser
                             {
                                 if(repo.attr("itemprop").equals("name codeRepository"))
                                 {
-                                    LocalDate repoDate = parseCreationDateOfRepositoryFromListOfCommits("https://github.com"+repo.attr("href")+"/commits/master");
+                                    repositoryName = repo.text();
+                                    System.out.println(repositoryName);
+                                    LocalDate repoDate = parseCreationDateOfRepository("https://api.github.com/repos/"+userName+"/"+repositoryName);
+                                    System.out.println(repoDate);
                                     if (repoDate.compareTo(testingDate)<0)
                                     {
                                         unprocessedStringOfKeywords = unprocessedStringOfKeywords + ' ' + repo.text();
@@ -175,11 +188,13 @@ public class GithubParser
         }
         catch (Exception ex) {
             ex.printStackTrace();
+            System.out.println(link);
+            Thread.currentThread().sleep(10000);
+            parseRepositories(link);
         }
     }
 
-    public void parseHTML ()
-    {
+    public void parseHTML () throws InterruptedException {
         try {
             final Document document = Jsoup.connect(url).get();
 
@@ -200,6 +215,8 @@ public class GithubParser
         }
         catch (Exception ex) {
             ex.printStackTrace();
+            Thread.currentThread().sleep(10000);
+            parseHTML();
         }
     }
 

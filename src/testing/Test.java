@@ -15,6 +15,7 @@ import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
 import parser.GithubListParser;
 import parser.GithubParser;
 import parser.SourceCodeParser;
@@ -30,6 +31,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.*;
+
+import static org.apache.lucene.util.Version.LUCENE_8_6_2;
 
 public class Test
 {
@@ -66,8 +69,9 @@ public class Test
         freshGraduates.add(fg);
     }
 
-    public void chooseNewDeveloperOrFreshGraduate (Developer developer)
+    public void chooseNewDeveloperOrFreshGraduate (Developer developer) throws InterruptedException
     {
+        System.out.println("-----" + mapOfDevelopersWithGithubURLs.get(developer.getName()));
         if(mapOfDevelopersWithGithubURLs.get(developer.getName()).equals("0"))
         {
             createFreshGraduate(developer);
@@ -84,6 +88,7 @@ public class Test
                 newExperiencedDevelopers.add(new NewDeveloper(developer,gp.getListOfRepositoryKeywords(),gp.getListOfLibraryImports()));
             }
         }
+        System.out.println("cp2");
     }
 
     public void testing () throws Exception {
@@ -95,6 +100,8 @@ public class Test
         glp.parseGithubList();
         this.mapOfDevelopersWithGithubURLs = glp.getMapOfDevelopersWithGithubURLs();
 
+        System.out.println("cp");
+
         for(Developer developer: parser.getMapOfDevelopers().values())
         {
             if(developer.getStartDate().compareTo(testingDate)<0)
@@ -105,6 +112,7 @@ public class Test
             {
                 chooseNewDeveloperOrFreshGraduate(developer);
             }
+            System.out.println("cp1");
         }
 
         for(Map.Entry b: mapOfBugs.entrySet())
@@ -116,6 +124,8 @@ public class Test
                 testBugs.add(bug);
             }
         }
+
+        System.out.println("cp3");
 
         SourceCodeParser scp = new SourceCodeParser("C:\\Users\\Hp\\Desktop\\BugTriaging");
 
@@ -129,11 +139,15 @@ public class Test
         nedIndexing();
         fgIndexing();
         readEdIndex();
+        System.out.println("||||||||||||||||");
+        //System.out.println(newExperiencedDevelopers.size());
         readNedIndex();
+        System.out.println("||||||||||||||||");
+        //System.out.println(freshGraduates.size());
         readFgIndex();
     }
 
-    private void readEdIndex () throws IOException, ParseException {
+    public void readEdIndex () throws IOException, ParseException {
         String indexPath = "C:\\Users\\Hp\\Desktop\\BugTriaging\\src\\files\\edIndex";
 
         Directory dir = FSDirectory.open(Paths.get(indexPath));
@@ -142,11 +156,20 @@ public class Test
 
         IndexSearcher searcher = new IndexSearcher (directoryReader);
 
-        QueryParser qp = new QueryParser("contents", new StandardAnalyzer());
+        BooleanQuery.Builder bq = new BooleanQuery.Builder();
 
-        Query query = qp.parse(convertListToQuery(testBugs.get(0).getListOfKeywords())); //syntax
+        for (String s: testBugs.get(0).getListOfKeywords())
+        {
+            bq.add(new BooleanClause(new TermQuery(new Term("content", s)), BooleanClause.Occur.SHOULD));
+        }
 
-        TopDocs results = searcher.search(query, 10);
+        //QueryParser qp = new QueryParser("content", new StandardAnalyzer());
+
+        //System.out.println(convertListToQuery(testBugs.get(0).getListOfKeywords()));
+
+        //Query query = qp.parse(convertListToQuery(testBugs.get(0).getListOfKeywords())); //syntax
+
+        TopDocs results = searcher.search(bq.build(), 20);
 
         for(ScoreDoc scoreDoc: results.scoreDocs)
         {
@@ -154,6 +177,7 @@ public class Test
             System.out.println(document.get("name"));
             System.out.println(scoreDoc.doc);
             System.out.println(scoreDoc.score);
+            System.out.println("----------");
         }
 
         directoryReader.close();
@@ -168,16 +192,19 @@ public class Test
 
         IndexSearcher searcher = new IndexSearcher (directoryReader);
 
-        QueryParser qp = new QueryParser("contents", new StandardAnalyzer());
+        BooleanQuery.Builder bq = new BooleanQuery.Builder();
 
-        List<String> queryList = new ArrayList<>();
+        for (String s: testBugs.get(0).getListOfKeywords())
+        {
+            bq.add(new BooleanClause(new TermQuery(new Term("content", s)), BooleanClause.Occur.SHOULD));
+        }
 
-        queryList.addAll(listOfSourceCodeLibraryImports);
-        queryList.addAll(testBugs.get(0).getListOfKeywords());
+        for (String s: listOfSourceCodeLibraryImports)
+        {
+            bq.add(new BooleanClause(new TermQuery(new Term("content", s)), BooleanClause.Occur.SHOULD));
+        }
 
-        Query query = qp.parse(convertListToQuery(queryList)); //syntax
-
-        TopDocs results = searcher.search(query, 10);
+        TopDocs results = searcher.search(bq.build(), 5);
 
         for(ScoreDoc scoreDoc: results.scoreDocs)
         {
@@ -199,11 +226,14 @@ public class Test
 
         IndexSearcher searcher = new IndexSearcher (directoryReader);
 
-        QueryParser qp = new QueryParser("contents", new StandardAnalyzer());
+        BooleanQuery.Builder bq = new BooleanQuery.Builder();
 
-        Query query = qp.parse(convertListToQuery(testBugs.get(0).getListOfKeywords())); //syntax
+        for (String s: testBugs.get(0).getListOfKeywords())
+        {
+            bq.add(new BooleanClause(new TermQuery(new Term("content", s)), BooleanClause.Occur.SHOULD));
+        }
 
-        TopDocs results = searcher.search(query, 10);
+        TopDocs results = searcher.search(bq.build(), 5);
 
         for(ScoreDoc scoreDoc: results.scoreDocs)
         {
@@ -228,21 +258,21 @@ public class Test
         return listString;
     }
 
-    private String convertListToQuery (List<String> list)
+    /*private String convertListToQuery (List<String> list)
     {
         String queryString = "";
 
         for(String s: list)
         {
-            queryString = queryString + "contents:" + s + " OR ";
+            queryString = queryString + "content:" + s + " OR ";
         }
 
         queryString = queryString.substring(0,queryString.length()-4);
 
         return queryString;
-    }
+    }*/
 
-    private void edIndexing() throws IOException {
+    public void edIndexing() throws IOException {
         String indexPath = "C:\\Users\\Hp\\Desktop\\BugTriaging\\src\\files\\edIndex";
 
         Directory dir = FSDirectory.open(Paths.get(indexPath));

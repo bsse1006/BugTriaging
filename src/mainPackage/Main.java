@@ -5,6 +5,8 @@ import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
 import naturalLanguageProcessor.TextProcessor;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,6 +17,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import profiles.Bug;
 import profiles.Developer;
+import testing.Test;
 
 import java.io.*;
 import java.net.URL;
@@ -27,9 +30,12 @@ public class Main
 {
     public static void main(String[] args) throws Exception
     {
-        GithubParser gp = new GithubParser("https://github.com/bsse1006", LocalDate.parse("2018-06-01"));
+        Test test = new Test(LocalDate.parse("2013-08-15"));
+        test.testing();
+
+        /*GithubParser gp = new GithubParser("https://github.com/bsse1006", LocalDate.parse("2018-06-01"));
         System.out.println(gp.getListOfLibraryImports().size());
-        System.out.println(gp.getListOfRepositoryKeywords().size());
+        System.out.println(gp.getListOfRepositoryKeywords().size());*/
 
         /*XMLParser parser = new XMLParser();
         parser.parsing();
