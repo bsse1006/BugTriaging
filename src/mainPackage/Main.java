@@ -1,10 +1,12 @@
 package mainPackage;
 
+import com.github.javaparser.ParseProblemException;
 import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.NodeList;
 import naturalLanguageProcessor.TextProcessor;
+import org.eclipse.jgit.api.Git;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.jsoup.Jsoup;
@@ -23,19 +25,26 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.http.HttpResponse;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 
 public class Main
 {
     public static void main(String[] args) throws Exception
     {
-        Test test = new Test(LocalDate.parse("2013-08-15"));
-        test.testing();
+        CloneGitRepos cgr = new CloneGitRepos();
 
-        /*GithubParser gp = new GithubParser("https://github.com/bsse1006", LocalDate.parse("2018-06-01"));
-        System.out.println(gp.getListOfLibraryImports().size());
-        System.out.println(gp.getListOfRepositoryKeywords().size());*/
+        /*GithubListParser glp = new GithubListParser();
+        glp.parseGithubList();*/
+
+        /*Test test = new Test(LocalDate.parse("2013-04-15"));
+        test.testing();*/
+
+
+        /*GithubParser gp = new GithubParser("bsse1006", LocalDate.parse("2013-04-15"));
+        gp.parseRepositories("https://github.com/Overruler?after=Y3Vyc29yOnYyOpK5MjAxNS0wMS0xOVQwMjozNzozMiswNjowMM4Bx6o7&tab=repositories");*/
 
         /*XMLParser parser = new XMLParser();
         parser.parsing();

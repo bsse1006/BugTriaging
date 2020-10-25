@@ -49,13 +49,42 @@ public class XMLParser
         {
             Element bugElement = listOfBugs.get(iteratorForListOfBugs);
 
+            String severity = "";
+
+            if(bugElement.getChild("bug_severity").getText().equals("blocker")
+            ||bugElement.getChild("bug_severity").getText().equals("critical")
+            ||bugElement.getChild("bug_severity").getText().equals("major")
+            ||bugElement.getChild("bug_severity").getText().equals("S1")
+            ||bugElement.getChild("bug_severity").getText().equals("s1")
+            ||bugElement.getChild("bug_severity").getText().equals("S2")
+            ||bugElement.getChild("bug_severity").getText().equals("s2"))
+            {
+                severity = "high";
+            }
+            else if(bugElement.getChild("bug_severity").getText().equals("normal")
+            ||bugElement.getChild("bug_severity").getText().equals("minor")
+            ||bugElement.getChild("bug_severity").getText().equals("S3")
+            ||bugElement.getChild("bug_severity").getText().equals("s3"))
+            {
+                severity = "medium";
+            }
+            else if(bugElement.getChild("bug_severity").getText().equals("trivial")
+            ||bugElement.getChild("bug_severity").getText().equals("enhancement")
+            ||bugElement.getChild("bug_severity").getText().equals("S4")
+            ||bugElement.getChild("bug_severity").getText().equals("s4"))
+            {
+                severity = "low";
+            }
+
             Bug bugObject = new Bug(
                     bugElement.getChild("id").getText(),
                     LocalDate.parse(bugElement.getChild("creation_time").getText().substring(0,10)),
                     bugElement.getChild("product").getText(),
                     bugElement.getChild("component").getText(),
-                    bugElement.getChild("bug_severity").getText()
+                    severity
             );
+
+            //System.out.println(bugElement.getChild("bug_severity").getText());
 
             String summaryAndDescription = bugElement.getChild("short_desc").getText() + ' ' +
                     bugElement.getChild("thetext").getText();
@@ -88,7 +117,7 @@ public class XMLParser
 
                 if(element.getName().equals("element"))
                 {
-                    if (element.getChild("what").getText().equals("Resolution"))
+                    if (!element.getChild("what").getText().isEmpty())
                     {
                         LocalDate bugResolutionDate = LocalDate.parse(element.getChild("when").getText().substring(0,10));
                         String developerName = element.getChild("who").getText();
@@ -106,8 +135,7 @@ public class XMLParser
                         }
                         else
                         {
-                            Developer developer = new Developer(developerName,
-                                    bugResolutionDate);
+                            Developer developer = new Developer(developerName, bugResolutionDate);
 
                             developer.getListOfBugIds().add(bugId);
 
@@ -122,7 +150,46 @@ public class XMLParser
                         {
                             mapOfBugs.get(bugId).setSolutionDate(bugResolutionDate);
                         }
+
+                        mapOfBugs.get(bugId).getListOfSolvers().add(developerName);
                     }
+
+                    /*if (element.getChild("what").getText().equals("Resolution"))
+                    {
+                        LocalDate bugResolutionDate = LocalDate.parse(element.getChild("when").getText().substring(0,10));
+                        String developerName = element.getChild("who").getText();
+
+                        if (mapOfDevelopers.containsKey(developerName))
+                        {
+                            Developer alreadyCreatedDeveloper = mapOfDevelopers.get(developerName);
+
+                            alreadyCreatedDeveloper.getListOfBugIds().add(bugId);
+
+                            if(alreadyCreatedDeveloper.getStartDate().compareTo(bugResolutionDate)>0)
+                            {
+                                alreadyCreatedDeveloper.setStartDate(bugResolutionDate);
+                            }
+                        }
+                        else
+                        {
+                            Developer developer = new Developer(developerName, bugResolutionDate);
+
+                            developer.getListOfBugIds().add(bugId);
+
+                            mapOfDevelopers.put(developer.getName(), developer);
+                        }
+
+                        if(mapOfBugs.get(bugId).getSolutionDate()==null)
+                        {
+                            mapOfBugs.get(bugId).setSolutionDate(bugResolutionDate);
+                        }
+                        else if(mapOfBugs.get(bugId).getSolutionDate().compareTo(bugResolutionDate)<0)
+                        {
+                            mapOfBugs.get(bugId).setSolutionDate(bugResolutionDate);
+                        }
+
+                        mapOfBugs.get(bugId).getListOfSolvers().add(developerName);
+                    }*/
                 }
             }
         }

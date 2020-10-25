@@ -15,6 +15,7 @@ public class Bug
     private String severity;
     private List<String> listOfKeywords;
     private LocalDate solutionDate;
+    private List<String> listOfSolvers = new ArrayList<>();
 
     public Bug()
     {
@@ -64,6 +65,10 @@ public class Bug
 
     public void setSolutionDate(LocalDate solutionDate) {
         this.solutionDate = solutionDate;
+    }
+
+    public List<String> getListOfSolvers() {
+        return listOfSolvers;
     }
 
     @Override
