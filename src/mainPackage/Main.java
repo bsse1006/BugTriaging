@@ -34,13 +34,13 @@ public class Main
 {
     public static void main(String[] args) throws Exception
     {
-        CloneGitRepos cgr = new CloneGitRepos();
+        /*CloneGitRepos cgr = new CloneGitRepos();*/
 
         /*GithubListParser glp = new GithubListParser();
         glp.parseGithubList();*/
 
-        /*Test test = new Test(LocalDate.parse("2013-04-15"));
-        test.testing();*/
+        Test test = new Test(LocalDate.parse("2013-04-15"));
+        test.testing();
 
 
         /*GithubParser gp = new GithubParser("bsse1006", LocalDate.parse("2013-04-15"));

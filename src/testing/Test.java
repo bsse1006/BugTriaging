@@ -39,7 +39,7 @@ public class Test
     private List<FreshGraduate> freshGraduates = new ArrayList<>();
     private Map<String, Bug> mapOfBugs;
     private List<String> listOfSourceCodeLibraryImports;
-    private Map<String, String> mapOfDevelopersWithGithubURLs = new HashMap<>();
+    //private Map<String, String> mapOfDevelopersWithGithubURLs = new HashMap<>();
     private List<Bug> testBugs = new ArrayList<>();
 
     List<String> eds = new ArrayList<>();
@@ -71,7 +71,7 @@ public class Test
 
         Collections.shuffle(list);
 
-        list = list.subList(0, list.size()/10);
+        list = list.subList(0, list.size()/2);
 
         FreshGraduate fg = new FreshGraduate(developer);
         fg.getListOfKeyWords().addAll(list);
@@ -81,15 +81,37 @@ public class Test
 
     public void chooseNewDeveloperOrFreshGraduate (Developer developer) throws Exception
     {
+        Boolean isNED = new File("C:\\Users\\Hp\\Desktop\\ClonedGitRepos\\" + developer.getName()).exists();
+
+        if(isNED)
+        {
+            System.out.println(developer.getName());
+            RepoParser rp = new RepoParser("C:\\Users\\Hp\\Desktop\\ClonedGitRepos\\" + developer.getName());
+            System.out.println(rp.getListOfLibraryImports().size()+ "----" + rp.getListOfRepositoryKeywords().size());
+            if(rp.getListOfRepositoryKeywords().size()==0&&rp.getListOfLibraryImports().size()==0)
+            {
+                createFreshGraduate(developer);
+            }
+            else
+            {
+                newExperiencedDevelopers.add(new NewDeveloper(developer,rp.getListOfRepositoryKeywords(),rp.getListOfLibraryImports()));
+            }
+        }
+        else
+        {
+            createFreshGraduate(developer);
+        }
+
+
         /*System.out.println("-----" + mapOfDevelopersWithGithubURLs.get(developer.getName()));*/
-        if(mapOfDevelopersWithGithubURLs.get(developer.getName()).equals("0"))
+        /*if(mapOfDevelopersWithGithubURLs.get(developer.getName()).equals("0"))
         {
             createFreshGraduate(developer);
         }
         else
         {
             System.out.println(developer.getName());
-            RepoParser rp = new RepoParser("C:\\Users\\Hp\\Desktop\\ClonedRepos\\" + developer.getName());
+            RepoParser rp = new RepoParser("C:\\Users\\Hp\\Desktop\\ClonedGitRepos\\" + developer.getName());
 
             //GithubParser gp = new GithubParser(mapOfDevelopersWithGithubURLs.get(developer.getName()),LocalDate.parse("2013-04-15"));
             System.out.println(rp.getListOfLibraryImports().size()+ "----" + rp.getListOfRepositoryKeywords().size());
@@ -101,7 +123,7 @@ public class Test
             {
                 newExperiencedDevelopers.add(new NewDeveloper(developer,rp.getListOfRepositoryKeywords(),rp.getListOfLibraryImports()));
             }
-        }
+        }*/
     }
 
     public void testing () throws Exception {
@@ -120,7 +142,7 @@ public class Test
         glp.parseGithubList();
         this.mapOfDevelopersWithGithubURLs = glp.getMapOfDevelopersWithGithubURLs();*/
 
-        //System.out.println("cp");
+        System.out.println("cp");
 
         for(Developer developer: parser.getMapOfDevelopers().values())
         {
@@ -134,7 +156,7 @@ public class Test
             }
         }
 
-        System.out.println("--" + experiencedDevelopers.size());
+        //System.out.println("--" + experiencedDevelopers.size());
 
 
 
@@ -154,7 +176,7 @@ public class Test
 
         listOfSourceCodeLibraryImports = scp.getListOfLibraryImports();
 
-        //indexing ();
+        indexing ();
 
         teamResult();
 
@@ -163,8 +185,11 @@ public class Test
 
     private void indexing() throws IOException {
         edIndexing();
+        System.out.println("ed indexed");
         nedIndexing();
+        System.out.println("ned indexed");
         fgIndexing();
+        System.out.println("fg indexed");
     }
 
     private void teamResult () throws IOException, ParseException {
@@ -193,6 +218,8 @@ public class Test
             eds.clear();
             neds.clear();
             fgs.clear();
+
+            System.out.println("result done" + testBug);
         }
 
         testBugs.removeAll(poorBugs);
@@ -223,7 +250,7 @@ public class Test
 
                 if (!Double.isNaN(Double.parseDouble(result.getRankListForSortedDevs().get(i)))&&!(Double.parseDouble(result.getRankListForSortedDevs().get(i))==0.0))
                 {
-                    System.out.println("------" + result.getRankListForSortedDevs().get(i));
+                    //System.out.println("------" + result.getRankListForSortedDevs().get(i));
                     avgMRR = avgMRR + (1.0/Double.parseDouble(result.getRankListForSortedDevs().get(i)));
                 }
             }

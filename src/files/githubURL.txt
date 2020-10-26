@@ -32,7 +32,7 @@ tobibobi	0
 tye.zdrojewski	0
 josef.eisl	0
 dean.thomsen	0
-clement	https://github.com/aclement
+clement	0
 dmolony	https://github.com/dmolony
 2f.mail	0
 harawata	0
