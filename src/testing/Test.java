@@ -203,6 +203,9 @@ public class Test
 
             if(eds.size()<5||neds.size()<5||fgs.size()<5)
             {
+                eds.clear();
+                neds.clear();
+                fgs.clear();
                 poorBugs.add(testBug);
                 continue;
             }
